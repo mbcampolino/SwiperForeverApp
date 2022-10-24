@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">SwiperForever</string>
+    <string name="follow_instrunctions">follow instrunctions bellow to enable your device to run this app.</string>
+    <string name="itsafreeapp">it’s a free and complete app</string>
+    <string name="wedontaskforpermissions">we don’t have or ask for files or internet permissions.</string>
+    <string name="ifyouenjoydonate">if you enjoyed, you can make a donate when you want :)</string>
+    <string name="startswipping">start swipping forever</string>
+    <string name="enable_service">enable service</string>
+    <string name="enable_display_over_apps">enable display over apps</string>
+
+    <string name="description_acessibility">description_acessibility</string>
+</resources>

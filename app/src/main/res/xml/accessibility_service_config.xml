@@ -1,0 +1,11 @@
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/description_acessibility"
+    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityFlags="flagReportViewIds"
+    android:accessibilityFeedbackType="feedbackSpoken"
+    android:canRequestTouchExplorationMode="true"
+    android:notificationTimeout="100"
+    android:canRetrieveWindowContent="true"
+    android:canPerformGestures="true"
+    android:settingsActivity="com.swiperforever.view.activity.MainActivity"
+    />
