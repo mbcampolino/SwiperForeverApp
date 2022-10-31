@@ -1,12 +1,22 @@
 <resources>
-    <string name="app_name">SwiperForever</string>
-    <string name="follow_instrunctions">follow instrunctions bellow to enable your device to run this app.</string>
-    <string name="itsafreeapp">it’s a free and complete app</string>
-    <string name="wedontaskforpermissions">we don’t have or ask for files or internet permissions.</string>
-    <string name="ifyouenjoydonate">if you enjoyed, you can make a donate when you want :)</string>
+    <string name="app_name">SwipingForever</string>
+    <string name="follow_instrunctions">Inicie o serviço de acessibilidade para acionarmos o controle de interações.</string>
+    <string name="itsafreeapp">Free: o app é grátis, sem limites e livre de qualquer propaganda</string>
+    <string name="wedontaskforpermissions">Seguro: nós não pedimos permissão para o uso de internet.</string>
+    <string name="ifyouenjoydonate">Se você amar, considere uma doação via pix para apoiar o app.</string>
     <string name="startswipping">start swipping forever</string>
-    <string name="enable_service">enable service</string>
+    <string name="enable_service">iniciar serviço</string>
     <string name="enable_display_over_apps">enable display over apps</string>
 
     <string name="description_acessibility">description_acessibility</string>
+    <string name="salvar_mudancas">salvar mudanças</string>
+    <string name="compartilhe_o_app">compartilhe o app</string>
+    <string name="copiar_chave_pix">copiar chave pix</string>
+    <string name="limite_de_intera_es">limite de interações</string>
+    <string name="description_about_donate">Faça uma doação PIX de quanto quiser e apoie o projeto.</string>
+    <string name="chave_pix">bff6c7f3-93c3-48b1-8414-af1fb77a59bb</string>
+    <string name="chaved_pix_copiada">Chave Pix copiada.</string>
+    <string name="limite_alterado">limite alterado.</string>
+    <string name="iniciar">iniciar</string>
+    <string name="parar">parar</string>
 </resources>
