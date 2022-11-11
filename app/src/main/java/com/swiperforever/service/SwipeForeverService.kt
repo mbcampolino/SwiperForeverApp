@@ -2,8 +2,6 @@ package com.swiperforever.service
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
-import android.accessibilityservice.GestureDescription.StrokeDescription
-import android.content.SharedPreferences
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.util.Log
@@ -12,28 +10,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.RelativeLayout
 import com.swiperforever.R
+import com.swiperforever.utill.SwipeForeverUtils.SHARED_SPEED_VALUE_DEFAULT
+import com.swiperforever.utill.SwipeForeverUtils.SHARED_SPEED_VALUE_NAME
+import com.swiperforever.utill.SwipeForeverUtils.getCurrentHour
+import com.swiperforever.utill.SwipeForeverUtils.getShared
+import com.swiperforever.view.components.ControlView
+import com.swiperforever.view.components.PointView
 import com.swiperforever.view.fragment.HomeFragment
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SwipeForeverService : AccessibilityService(), View.OnClickListener {
+class SwipeForeverService : AccessibilityService() {
 
-    companion object {
-        const val SHARED_PREFERENCE_APPNAME = "shared_preference_swipeforever"
-        const val SHARED_SPEED_VALUE_NAME = "speed_value"
-        const val SHARED_SPEED_VALUE_DEFAULT = 1
-    }
+    lateinit var viewGroupRoot: RelativeLayout
 
-    lateinit var linearLayout: LinearLayout
-    lateinit var faster: Button
-    lateinit var lower: Button
-    lateinit var stopService: Button
-    lateinit var txValue: TextView
-    lateinit var txCurrentCounter: TextView
+    private lateinit var controlView: ControlView
+    private lateinit var pointView: PointView
+
+    lateinit var viewToTap: View
 
     var active = false
     var userActive = false
@@ -43,59 +39,76 @@ class SwipeForeverService : AccessibilityService(), View.OnClickListener {
 
     var speed = 1
 
+    lateinit var wm: WindowManager
+
     override fun onServiceConnected() {
-        super.onServiceConnected()
-        active = true
         Log.v("MARCOS", "onServiceConnected")
-        speed = getShared().getInt(SHARED_SPEED_VALUE_NAME, SHARED_SPEED_VALUE_DEFAULT)
-        createControls()
-        configureControls()
+        super.onServiceConnected()
+
+        wm = getSystemService(WINDOW_SERVICE) as WindowManager
+        viewGroupRoot = RelativeLayout(this)
+        active = true
+
+        speed = getShared(this).getInt(SHARED_SPEED_VALUE_NAME, SHARED_SPEED_VALUE_DEFAULT)
+        configLayoutOnStarted()
     }
 
-    private fun getShared(): SharedPreferences = getSharedPreferences(SHARED_PREFERENCE_APPNAME, MODE_PRIVATE)
-
-    private fun createControls() {
-        val wm = getSystemService(WINDOW_SERVICE) as WindowManager
-        linearLayout = LinearLayout(this)
+    private fun configLayoutOnStarted() {
         val lp = WindowManager.LayoutParams()
         lp.type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
         lp.format = PixelFormat.TRANSLUCENT
         lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
         lp.width = WindowManager.LayoutParams.WRAP_CONTENT
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT
-        lp.gravity = Gravity.TOP
+        lp.gravity = Gravity.START
         val inflater = LayoutInflater.from(this)
-        inflater.inflate(R.layout.control_layout, linearLayout)
-        wm.addView(linearLayout, lp)
+        inflater.inflate(R.layout.root_layout, viewGroupRoot)
+        wm.addView(ControlView(this), lp)
     }
 
-    private fun configureControls() {
-        faster = linearLayout.findViewById(R.id.faster)
-        lower= linearLayout.findViewById(R.id.lower)
-        txValue = linearLayout.findViewById(R.id.tx_speed)
-        stopService = linearLayout.findViewById(R.id.stop)
-        txCurrentCounter = linearLayout.findViewById(R.id.tx_current_counter)
+//    private fun showPointPosition() {
+//        //wm.removeView(headerControl)
+//        val lp = WindowManager.LayoutParams()
+//        lp.type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+//        lp.format = PixelFormat.TRANSLUCENT
+//        lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+//        lp.width = WindowManager.LayoutParams.MATCH_PARENT
+//        lp.height = WindowManager.LayoutParams.MATCH_PARENT
+//        lp.gravity = Gravity.TOP
+//        val inflater = LayoutInflater.from(this)
+//        inflater.inflate(R.layout.control_layout, headerControl)
+//        wm.addView(headerControl, lp)
+//    }
 
-        txValue.text = speed.toString()
-
-        faster.setOnClickListener(this)
-        lower.setOnClickListener(this)
-        stopService.setOnClickListener(this)
-    }
-
-    private fun getCurrentHour() : Int {
-        val sdfHour = SimpleDateFormat(HomeFragment.FORMAT_LAST_HOUR, Locale.getDefault())
-        val currentHourTime: String = sdfHour.format(Date())
-        return getShared().getInt("likes_total_${currentHourTime}", 0)
-    }
+//    private fun createDragDropSystem() {
+//
+//        //viewToTap = headerControl.findViewById(R.id.view_to_tap_start)
+//        viewToTap.isClickable = true
+//        viewToTap.isFocusable = true
+//
+//        viewToTap.setOnDragListener { v, event ->
+//            // params = v.layoutParams as RelativeLayout.LayoutParams
+//            //params.topMargin = event.x.toInt()
+//            //params.bottomMargin = event.y.toInt()
+//
+//            //params.marginStart = event.x.toInt() - (viewToTap.width.div(2))
+//            //params.topMargin = event.y.toInt() - (viewToTap.height.div(2))
+//
+//            viewToTap.x = event.x - viewToTap.width.div(2)
+//            viewToTap.y = event.y - viewToTap.height.div(2)
+//
+//            //v.layoutParams = params
+//            false
+//        }
+//    }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
         event?.source?.apply {
 
-            counterLimit = getShared().getInt(HomeFragment.COUNTER_LIMIT, 500)
+            counterLimit = getShared(baseContext).getInt(HomeFragment.COUNTER_LIMIT, 500)
 
-            currentCounter = getCurrentHour()
+            currentCounter = getCurrentHour(baseContext)
 
             if (active && userActive && currentCounter < counterLimit) {
                 val displayMetrics = resources.displayMetrics
@@ -107,13 +120,14 @@ class SwipeForeverService : AccessibilityService(), View.OnClickListener {
                     val randomCenter = (centerHeight / 4..centerHeight / 2).random()
                     moveTo(randomCenter.toFloat(), randomCenter.toFloat())
 
-                    val rndsSwipeDistance = displayMetrics.widthPixels//(centerWidth / 4..centerWidth / 2).random()
+                    val rndsSwipeDistance = (centerWidth / 4..centerWidth / 2).random()
                     lineTo(centerWidth.toFloat() + rndsSwipeDistance, randomCenter.toFloat())
                     Log.v("MARCOS", "from $centerWidth to ${centerWidth + rndsSwipeDistance}")
                 }
 
                 val gestureBuilder =  GestureDescription.Builder()
-                val stroke = StrokeDescription(dragRightPath, 0, (500 / speed).toLong())
+                val stroke =
+                    GestureDescription.StrokeDescription(dragRightPath, 0, (500 / speed).toLong())
                 gestureBuilder.addStroke(stroke)
                 dispatchGesture(gestureBuilder.build(), registerCallback, null)
 
@@ -143,48 +157,19 @@ class SwipeForeverService : AccessibilityService(), View.OnClickListener {
         val sdfHour = SimpleDateFormat(HomeFragment.FORMAT_LAST_HOUR, Locale.getDefault())
         val currentHourTime: String = sdfHour.format(Date())
 
-        var total = getShared().getInt("likes_total", 0)
+        var total = getShared(this).getInt("likes_total", 0)
         total += 1
-        getShared().edit().putInt("likes_total", total).apply()
+        getShared(this).edit().putInt("likes_total", total).apply()
 
-        var totalLastHour = getCurrentHour()
+        var totalLastHour = getCurrentHour(this)
         totalLastHour += 1
-        getShared().edit().putInt("likes_total_$currentHourTime", totalLastHour).apply()
+        getShared(this).edit().putInt("likes_total_$currentHourTime", totalLastHour).apply()
 
-        txCurrentCounter.text = totalLastHour.toString()
+        controlView.updateLikeCounter(totalLastHour)
     }
 
     override fun onInterrupt() {
         Log.v("MARCOS", "onInterrupt")
         active = false
-    }
-
-    override fun onClick(view: View?) {
-        if (view == faster) {
-            if (speed < 4) {
-                speed += 1
-            }
-
-            savePreferences(speed)
-        } else if (view == lower) {
-            if (speed > 1) {
-                speed -= 1
-            }
-
-            savePreferences(speed)
-        } else if (view == stopService) {
-            userActive =! userActive
-            if (userActive) {
-                stopService.text = getString(R.string.parar)
-                txCurrentCounter.text = currentCounter.toString()
-            } else {
-                stopService.text = getString(R.string.iniciar)
-            }
-        }
-    }
-
-    private fun savePreferences(speed: Int) {
-        getShared().edit().putInt(SHARED_SPEED_VALUE_NAME, speed).apply()
-        txValue.text = speed.toString()
     }
 }

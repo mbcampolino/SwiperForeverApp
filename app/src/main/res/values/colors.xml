@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="sf_primaryColor">#FE2A77</color>
+    <color name="sf_primaryColor">#956EA3</color>
     <color name="sf_primaryColorVariant">#FE2A77</color>
+    <color name="sf_textbutton_color">#FFFFFF</color>
+    <color name="sf_text_color">#000000</color>
+    <color name="sf_background">#F5F5F5</color>
 
     <color name="sf_secundaryColor">#FE2A77</color>
     <color name="sf_secundaryColorVariant">#FE2A77</color>

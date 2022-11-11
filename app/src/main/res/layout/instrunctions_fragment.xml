@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="32dp"
+    android:background="@color/sf_background"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.0"
@@ -11,18 +13,60 @@
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintVertical_bias="1.0">
 
-    <Button
-        android:id="@+id/button_enable_display"
-        android:layout_width="0dp"
-        android:layout_height="62dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/background_button"
-        android:text="@string/enable_display_over_apps"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/button_enable_service"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_marginTop="@dimen/dimen_24sp"
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/notosansb"
+                android:text="@string/follow_instrunctions"
+                android:textColor="@color/sf_text_color"
+                android:textSize="@dimen/dimen_32sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/notosans"
+                android:text="@string/itsafreeapp"
+                android:textColor="@color/sf_text_color"
+                android:textSize="@dimen/dimen_24sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/notosans"
+                android:text="@string/wedontaskforpermissions"
+                android:textColor="@color/sf_text_color"
+                android:textSize="@dimen/dimen_24sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="128dp"
+                android:fontFamily="@font/notosans"
+                android:text="@string/ifyouenjoydonate"
+                android:textColor="@color/sf_text_color"
+                android:textSize="@dimen/dimen_24sp" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <Button
         android:id="@+id/button_enable_service"
@@ -31,74 +75,11 @@
         android:layout_marginBottom="16dp"
         android:background="@drawable/background_button"
         android:text="@string/enable_service"
-        app:layout_constraintBottom_toTopOf="@+id/button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="0dp"
-        android:layout_height="62dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/background_button"
-        android:enabled="false"
-        android:text="@string/startswipping"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="@font/notosansb"
+        android:alpha="0.9"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintBottom_toTopOf="@+id/button_enable_display"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="@string/follow_instrunctions"
-                android:textColor="#1E1E1E"
-                android:textStyle="bold"
-                android:textSize="@dimen/dimen_32sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="@string/itsafreeapp"
-                android:textColor="#1E1E1E"
-                android:textSize="@dimen/dimen_24sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="@string/wedontaskforpermissions"
-                android:textColor="#1E1E1E"
-                android:textSize="@dimen/dimen_24sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="@string/ifyouenjoydonate"
-                android:textColor="#1E1E1E"
-                android:textSize="@dimen/dimen_24sp" />
-
-        </LinearLayout>
-    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

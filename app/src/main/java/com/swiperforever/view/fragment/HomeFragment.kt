@@ -1,21 +1,22 @@
 package com.swiperforever.view.fragment
 
-import android.accessibilityservice.AccessibilityService
 import android.content.*
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import com.swiperforever.R
-import com.swiperforever.service.SwipeForeverService
+import com.swiperforever.utill.SwipeForeverUtils.getShared
 import java.text.SimpleDateFormat
 import java.util.*
-
 
 class HomeFragment: Fragment() {
 
@@ -26,6 +27,7 @@ class HomeFragment: Fragment() {
 
     private lateinit var edValue : EditText
     private lateinit var progressValue : ProgressBar
+    private lateinit var root : ConstraintLayout
 
     private lateinit var txLastHourLikes : TextView
     private lateinit var txTotalLikes : TextView
@@ -34,6 +36,8 @@ class HomeFragment: Fragment() {
     private lateinit var btnSavePreferences : Button
     private lateinit var btnShareApp : Button
     private lateinit var btnCopyPix : Button
+    private lateinit var btnInfo : CardView
+    private lateinit var cardAlertView : CardView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,6 +50,7 @@ class HomeFragment: Fragment() {
 
         edValue = view.findViewById(R.id.ed_value_limit)
         progressValue = view.findViewById(R.id.progressBar)
+        progressValue.min =  1
 
         txLastHourLikes = view.findViewById(R.id.tx_interactors_hour)
         txTotalLikes = view.findViewById(R.id.tx_interactors_total)
@@ -54,16 +59,19 @@ class HomeFragment: Fragment() {
         btnCopyPix = view.findViewById(R.id.btn_copy_pix)
         btnShareApp = view.findViewById(R.id.btn_share_app)
         btnSavePreferences = view.findViewById(R.id.btn_save_preferences)
+        btnInfo = view.findViewById(R.id.btn_info)
+        cardAlertView = view.findViewById(R.id.alert_constraint)
+        root = view.findViewById(R.id.root)
 
         // registra ultima hora
         val sdfHour = SimpleDateFormat(FORMAT_LAST_HOUR, Locale.getDefault())
         val currentHourTime: String = sdfHour.format(Date())
-        txLastHourLikes.text = getShared().getInt("likes_total_$currentHourTime", 0).toString()
+        txLastHourLikes.text = String.format(getString(R.string.interaoes_ultima_hora), getShared(view.context).getInt("likes_total_$currentHourTime", 0).toString())
 
         // registra likes totais
-        txTotalLikes.text = getShared().getInt("likes_total", 0).toString()
+        txTotalLikes.text = String.format(getString(R.string.interaoes_totais), getShared(view.context).getInt("likes_total", 0).toString())
 
-        edValue.setText(getShared().getInt(COUNTER_LIMIT, 500).toString())
+        edValue.setText(getShared(view.context).getInt(COUNTER_LIMIT, 500).toString())
 
         edValue.addTextChangedListener( object : TextWatcher {
 
@@ -76,15 +84,16 @@ class HomeFragment: Fragment() {
             }
 
             override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                btnSavePreferences.isEnabled = getShared().getInt(COUNTER_LIMIT, 500).toString() != text
+                btnSavePreferences.isEnabled = getShared(view.context).getInt(COUNTER_LIMIT, 500).toString() != text
             }
         })
 
         btnSavePreferences.setOnClickListener {
-            val  value = Integer.parseInt(edValue.text.toString())
-            getShared().edit().putInt(COUNTER_LIMIT, value).apply()
+            val value = Integer.parseInt(edValue.text.toString())
+            getShared(view.context).edit().putInt(COUNTER_LIMIT, value).apply()
             Toast.makeText(requireActivity(), getString(R.string.limite_alterado), Toast.LENGTH_LONG).show()
             btnSavePreferences.isEnabled = false
+            progressValue.max = value
         }
 
         btnShareApp.setOnClickListener {
@@ -101,10 +110,22 @@ class HomeFragment: Fragment() {
 
             Toast.makeText(requireActivity(), getString(R.string.chaved_pix_copiada), Toast.LENGTH_LONG).show()
         }
-    }
 
-    private fun getShared(): SharedPreferences = requireContext().getSharedPreferences(
-        SwipeForeverService.SHARED_PREFERENCE_APPNAME,
-        AccessibilityService.MODE_PRIVATE
-    )
+        btnInfo.setOnClickListener {
+            TransitionManager.beginDelayedTransition(root)
+            if (cardAlertView.visibility == View.VISIBLE) {
+                cardAlertView.visibility = View.GONE
+            } else {
+                cardAlertView.visibility = View.VISIBLE
+            }
+        }
+
+        cardAlertView.setOnClickListener {
+            TransitionManager.beginDelayedTransition(root)
+            cardAlertView.visibility = View.GONE
+        }
+
+        progressValue.progress = getShared(view.context).getInt("likes_total_$currentHourTime", 0)
+        progressValue.max = getShared(view.context).getInt(COUNTER_LIMIT, 500)
+    }
 }
