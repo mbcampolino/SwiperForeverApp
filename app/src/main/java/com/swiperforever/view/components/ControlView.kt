@@ -1,19 +1,13 @@
 package com.swiperforever.view.components
 
-import android.accessibilityservice.AccessibilityService
-import android.annotation.SuppressLint
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.AttributeSet
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import com.swiperforever.R
-import com.swiperforever.utill.SwipeForeverUtils.SHARED_PREFERENCE_APPNAME
-import com.swiperforever.utill.SwipeForeverUtils.SHARED_SPEED_VALUE_NAME
 
-@SuppressLint("SetTextI18n")
 class ControlView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null) : CardView(context, attrs), View.OnClickListener {
 
@@ -22,15 +16,23 @@ class ControlView @JvmOverloads constructor(
     private lateinit var btnSettings: Button
     private lateinit var txCurrentCounter: TextView
 
-    var currentSpeed = 1
-    var activeService = false
+    private var currentSpeed = 1
+    private var activeService = false
+
+    private var onControlUpdated: OnControlUpdated? = null
 
     init {
         inflate(context, R.layout.control_layout, this)
     }
 
+    fun setOnControlUpdated(onControlUpdated: OnControlUpdated) {
+        this.onControlUpdated = onControlUpdated
+    }
+
     override fun onFinishInflate() {
         super.onFinishInflate()
+        //if (onControlUpdated == null) return
+
         configureControls()
     }
 
@@ -52,6 +54,7 @@ class ControlView @JvmOverloads constructor(
 
     private fun updateSpeedView() {
         btnChangeSpeed.text = "${currentSpeed}x"
+        onControlUpdated?.onSpeedUpdate(currentSpeed)
     }
 
     override fun onClick(view: View?) {
@@ -64,16 +67,16 @@ class ControlView @JvmOverloads constructor(
             }
 
             updateSpeedView()
-            savePreferences(currentSpeed)
         }
 
         if (view == btnStartStopService) {
-            activeService != activeService
+            activeService =! activeService
             updateActiveView()
+            onControlUpdated?.onStateRunning(activeService)
         }
 
         if (view == btnSettings) {
-            // start stop
+            onControlUpdated?.onSettingsOpen()
         }
     }
 
@@ -85,12 +88,9 @@ class ControlView @JvmOverloads constructor(
         }
     }
 
-    private fun savePreferences(speed: Int) {
-        getShared().edit().putInt(SHARED_SPEED_VALUE_NAME, speed).apply()
+    interface OnControlUpdated {
+        fun onSpeedUpdate(speed: Int)
+        fun onStateRunning(active: Boolean)
+        fun onSettingsOpen()
     }
-
-    private fun getShared(): SharedPreferences = context.getSharedPreferences(
-        SHARED_PREFERENCE_APPNAME,
-        AccessibilityService.MODE_PRIVATE
-    )
 }

@@ -18,7 +18,7 @@ import com.swiperforever.utill.SwipeForeverUtils.getShared
 import java.text.SimpleDateFormat
 import java.util.*
 
-class HomeFragment: Fragment() {
+class HomeFragment: Fragment(), TextWatcher, View.OnClickListener {
 
     companion object {
         const val FORMAT_LAST_HOUR = "yyyy_MM_dd_HH"
@@ -73,59 +73,51 @@ class HomeFragment: Fragment() {
 
         edValue.setText(getShared(view.context).getInt(COUNTER_LIMIT, 500).toString())
 
-        edValue.addTextChangedListener( object : TextWatcher {
+        edValue.addTextChangedListener(this)
+        btnSavePreferences.setOnClickListener(this)
+        btnShareApp.setOnClickListener(this)
+        btnCopyPix.setOnClickListener(this)
+        btnInfo.setOnClickListener(this)
+        cardAlertView.setOnClickListener(this)
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        progressValue.progress = getShared(view.context).getInt("likes_total_$currentHourTime", 0)
+        progressValue.max = getShared(view.context).getInt(COUNTER_LIMIT, 500)
+    }
 
-            }
+    override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        btnSavePreferences.isEnabled = getShared(requireContext()).getInt(COUNTER_LIMIT, 500).toString() != text
+    }
 
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-
-            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                btnSavePreferences.isEnabled = getShared(view.context).getInt(COUNTER_LIMIT, 500).toString() != text
-            }
-        })
-
-        btnSavePreferences.setOnClickListener {
+    override fun onClick(view: View?) {
+        if (view == btnSavePreferences) {
             val value = Integer.parseInt(edValue.text.toString())
             getShared(view.context).edit().putInt(COUNTER_LIMIT, value).apply()
             Toast.makeText(requireActivity(), getString(R.string.limite_alterado), Toast.LENGTH_LONG).show()
             btnSavePreferences.isEnabled = false
             progressValue.max = value
-        }
-
-        btnShareApp.setOnClickListener {
+        } else if (view == btnShareApp) {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("https://play.google.com/store/apps/details?id=com.swiperforever")
             startActivity(intent)
-        }
-
-        btnCopyPix.setOnClickListener {
+        } else if (view == btnCopyPix) {
             val textToCopy = getString(R.string.chave_pix)
             val clipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clipData = ClipData.newPlainText("text", textToCopy)
             clipboardManager.setPrimaryClip(clipData)
-
             Toast.makeText(requireActivity(), getString(R.string.chaved_pix_copiada), Toast.LENGTH_LONG).show()
-        }
-
-        btnInfo.setOnClickListener {
+        } else if (view == btnInfo) {
             TransitionManager.beginDelayedTransition(root)
             if (cardAlertView.visibility == View.VISIBLE) {
                 cardAlertView.visibility = View.GONE
             } else {
                 cardAlertView.visibility = View.VISIBLE
             }
-        }
-
-        cardAlertView.setOnClickListener {
+        } else if (view == cardAlertView) {
             TransitionManager.beginDelayedTransition(root)
             cardAlertView.visibility = View.GONE
         }
-
-        progressValue.progress = getShared(view.context).getInt("likes_total_$currentHourTime", 0)
-        progressValue.max = getShared(view.context).getInt(COUNTER_LIMIT, 500)
     }
+
+    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+    override fun afterTextChanged(p0: Editable?) {}
 }

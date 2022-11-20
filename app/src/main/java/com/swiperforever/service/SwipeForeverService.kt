@@ -2,6 +2,10 @@ package com.swiperforever.service
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
+import android.content.SharedPreferences
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.util.Log
@@ -10,28 +14,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import android.widget.RelativeLayout
+import android.widget.LinearLayout
 import com.swiperforever.R
+import com.swiperforever.utill.SwipeForeverUtils.SHARED_PREFERENCE_APPNAME
 import com.swiperforever.utill.SwipeForeverUtils.SHARED_SPEED_VALUE_DEFAULT
 import com.swiperforever.utill.SwipeForeverUtils.SHARED_SPEED_VALUE_NAME
 import com.swiperforever.utill.SwipeForeverUtils.getCurrentHour
 import com.swiperforever.utill.SwipeForeverUtils.getShared
+import com.swiperforever.view.activity.MainActivity
 import com.swiperforever.view.components.ControlView
-import com.swiperforever.view.components.PointView
 import com.swiperforever.view.fragment.HomeFragment
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SwipeForeverService : AccessibilityService() {
+class SwipeForeverService : AccessibilityService(), ControlView.OnControlUpdated {
 
-    lateinit var viewGroupRoot: RelativeLayout
-
+    lateinit var linearLayout: LinearLayout
     private lateinit var controlView: ControlView
-    private lateinit var pointView: PointView
+    lateinit var rootView: View
 
-    lateinit var viewToTap: View
-
-    var active = false
+    var systemActive = false
     var userActive = false
 
     var counterLimit = 500
@@ -46,61 +48,29 @@ class SwipeForeverService : AccessibilityService() {
         super.onServiceConnected()
 
         wm = getSystemService(WINDOW_SERVICE) as WindowManager
-        viewGroupRoot = RelativeLayout(this)
-        active = true
+        systemActive = true
 
         speed = getShared(this).getInt(SHARED_SPEED_VALUE_NAME, SHARED_SPEED_VALUE_DEFAULT)
         configLayoutOnStarted()
     }
 
     private fun configLayoutOnStarted() {
+        val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+        linearLayout = LinearLayout(this)
         val lp = WindowManager.LayoutParams()
         lp.type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
         lp.format = PixelFormat.TRANSLUCENT
         lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
         lp.width = WindowManager.LayoutParams.WRAP_CONTENT
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT
-        lp.gravity = Gravity.START
+        lp.gravity = Gravity.START and Gravity.TOP
         val inflater = LayoutInflater.from(this)
-        inflater.inflate(R.layout.root_layout, viewGroupRoot)
-        wm.addView(ControlView(this), lp)
+        rootView = inflater.inflate(R.layout.root_layout, linearLayout)
+        wm.addView(linearLayout, lp)
+
+        controlView = rootView.findViewById(R.id.control_view)
+        controlView.setOnControlUpdated(this)
     }
-
-//    private fun showPointPosition() {
-//        //wm.removeView(headerControl)
-//        val lp = WindowManager.LayoutParams()
-//        lp.type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-//        lp.format = PixelFormat.TRANSLUCENT
-//        lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-//        lp.width = WindowManager.LayoutParams.MATCH_PARENT
-//        lp.height = WindowManager.LayoutParams.MATCH_PARENT
-//        lp.gravity = Gravity.TOP
-//        val inflater = LayoutInflater.from(this)
-//        inflater.inflate(R.layout.control_layout, headerControl)
-//        wm.addView(headerControl, lp)
-//    }
-
-//    private fun createDragDropSystem() {
-//
-//        //viewToTap = headerControl.findViewById(R.id.view_to_tap_start)
-//        viewToTap.isClickable = true
-//        viewToTap.isFocusable = true
-//
-//        viewToTap.setOnDragListener { v, event ->
-//            // params = v.layoutParams as RelativeLayout.LayoutParams
-//            //params.topMargin = event.x.toInt()
-//            //params.bottomMargin = event.y.toInt()
-//
-//            //params.marginStart = event.x.toInt() - (viewToTap.width.div(2))
-//            //params.topMargin = event.y.toInt() - (viewToTap.height.div(2))
-//
-//            viewToTap.x = event.x - viewToTap.width.div(2)
-//            viewToTap.y = event.y - viewToTap.height.div(2)
-//
-//            //v.layoutParams = params
-//            false
-//        }
-//    }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
@@ -110,7 +80,7 @@ class SwipeForeverService : AccessibilityService() {
 
             currentCounter = getCurrentHour(baseContext)
 
-            if (active && userActive && currentCounter < counterLimit) {
+            if (systemActive && userActive && currentCounter < counterLimit) {
                 val displayMetrics = resources.displayMetrics
                 val centerWidth = displayMetrics.widthPixels / 2
                 val centerHeight = displayMetrics.heightPixels / 2
@@ -170,6 +140,29 @@ class SwipeForeverService : AccessibilityService() {
 
     override fun onInterrupt() {
         Log.v("MARCOS", "onInterrupt")
-        active = false
+        systemActive = false
     }
+
+    override fun onSpeedUpdate(speed: Int) {
+        this.speed = speed
+    }
+
+    override fun onStateRunning(active: Boolean) {
+        userActive = active
+    }
+
+    override fun onSettingsOpen() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = FLAG_ACTIVITY_NEW_TASK
+        controlView.context.startActivity(intent)
+    }
+
+//    private fun savePreferences(speed: Int) {
+//        getShared().edit().putInt(SHARED_SPEED_VALUE_NAME, speed).apply()
+//    }
+//
+//    private fun getShared(): SharedPreferences = rootView.context.getSharedPreferences(
+//        SHARED_PREFERENCE_APPNAME,
+//        MODE_PRIVATE
+//    )
 }
